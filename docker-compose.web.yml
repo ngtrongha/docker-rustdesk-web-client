@@ -1,0 +1,24 @@
+services:
+  rustdesk-web:
+    image: ${RUSTDESK_WEB_IMAGE:?RUSTDESK_WEB_IMAGE is required}
+    container_name: rustdesk-web-client
+    ports:
+      - "${PRIVATE_BIND_IP:-172.16.3.28}:${PRIVATE_BIND_PORT:-22180}:80"
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-remote-connect.bvkhanhhoa.cloud}
+      API_SERVER: ${API_SERVER:-https://remote-connect.bvkhanhhoa.cloud}
+      RUSTDESK_PUBLIC_KEY: ${RUSTDESK_PUBLIC_KEY:?RUSTDESK_PUBLIC_KEY is required}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 10s
+    networks:
+      - rustdesk-backend
+
+networks:
+  rustdesk-backend:
+    external: true
+    name: ${RUSTDESK_DOCKER_NETWORK:?RUSTDESK_DOCKER_NETWORK is required}

@@ -1,0 +1,53 @@
+diff --git a/flutter/web/v1/js/src/connection.ts b/flutter/web/v1/js/src/connection.ts
+index d083c9a..55bdd2e 100644
+--- a/flutter/web/v1/js/src/connection.ts
++++ b/flutter/web/v1/js/src/connection.ts
+@@ -6,14 +6,12 @@ import * as sha256 from "fast-sha256";
+ import * as globals from "./globals";
+ import { decompress, mapKey, sleep } from "./common";
+ 
+-const PORT = 21116;
+ const HOSTS = [
+   "rs-sg.rustdesk.com",
+   "rs-cn.rustdesk.com",
+   "rs-us.rustdesk.com",
+ ];
+ let HOST = localStorage.getItem("rendezvous-server") || HOSTS[0];
+-const SCHEMA = "wss://";
+ 
+ type MsgboxCallback = (type: string, title: string, text: string) => void;
+ type DrawCallback = (data: Uint8Array) => void;
+@@ -741,6 +739,9 @@ export default class Connection {
+ }
+ 
+ function testDelay() {
++  if (localStorage.getItem("custom-rendezvous-server")) {
++    return;
++  }
+   var nearest = "";
+   HOSTS.forEach((host) => {
+     const now = new Date().getTime();
+@@ -762,17 +763,12 @@ function getDefaultUri(isRelay: Boolean = false): string {
+ }
+ 
+ function getrUriFromRs(
+-  uri: string,
++  _uri: string,
+   isRelay: Boolean = false,
+-  roffset: number = 0
++  _roffset: number = 0
+ ): string {
+-  if (uri.indexOf(":") > 0) {
+-    const tmp = uri.split(":");
+-    const port = parseInt(tmp[1]);
+-    uri = tmp[0] + ":" + (port + (isRelay ? roffset || 3 : 2));
+-  } else {
+-    uri += ":" + (PORT + (isRelay ? 3 : 2));
+-  }
+-  return SCHEMA + uri;
++  const schema = window.location.protocol === "https:" ? "wss://" : "ws://";
++  const path = isRelay ? "/ws/relay" : "/ws/id";
++  return schema + window.location.host + path;
+ }
+ 
+ function hash(datas: (string | Uint8Array)[]): Uint8Array {

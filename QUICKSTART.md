@@ -1,5 +1,7 @@
 # 🚀 Guide de Démarrage Rapide - RustDesk Web Client
 
+> **BVDKH production:** bỏ qua hướng dẫn generic bên dưới và dùng `deploy_offline.ps1` theo `DEPLOYMENT_BVDKH.md`. Production không publish trực tiếp các port WebSocket.
+
 ## 📋 Versions utilisées
 - **Flutter**: 3.22.1
 - **Tag**: fix-build (par défaut)

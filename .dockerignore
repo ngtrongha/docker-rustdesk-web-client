@@ -1,0 +1,10 @@
+.git
+.github
+.env*
+*.tar
+*.log
+build/
+dist/
+DEPLOYMENT.md
+README.md
+QUICKSTART.md

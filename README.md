@@ -1,5 +1,7 @@
 # RustDesk Web Client - Optimized Version
 
+> **BVDKH production:** dùng [`DEPLOYMENT_BVDKH.md`](DEPLOYMENT_BVDKH.md) và `deploy_offline.ps1` riêng. Các ví dụ generic bên dưới chỉ là tài liệu upstream, không phải quy trình production.
+
 ⚠️ **IMPORTANT - Version Status** ⚠️
 
 - ✅ **Version 1.1.10 (pmietlicki/docker-rustdesk-web-client:v1)** - **FULLY FUNCTIONAL**
