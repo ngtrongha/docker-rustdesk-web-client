@@ -5,6 +5,7 @@ param(
     [string]$RemotePath = '/home/app-ubuntu/serverpod_app/rustdesk-deploy/web-client',
     [string]$RustDeskRemotePath = '/home/app-ubuntu/serverpod_app/rustdesk-deploy',
     [string]$PublicHost = 'remote-connect.bvkhanhhoa.cloud',
+    [string]$ApiServer = 'https://danhba.bvkhanhhoa.cloud',
     [string]$PrivateBindIP = '172.16.3.28',
     [ValidateRange(1, 65535)]
     [int]$PrivateBindPort = 22180,
@@ -63,6 +64,9 @@ function Assert-SafeInputs {
     }
     if ($PublicHost -notmatch '^[A-Za-z0-9.-]+$') {
         throw 'PublicHost is not a valid hostname.'
+    }
+    if ($ApiServer -notmatch '^https://[A-Za-z0-9.-]+(?::[0-9]+)?(?:/[A-Za-z0-9._~/-]*)?$') {
+        throw 'ApiServer must be a safe HTTPS URL.'
     }
     $ParsedAddress = $null
     if (-not [System.Net.IPAddress]::TryParse($ServerIP, [ref]$ParsedAddress)) {
@@ -161,7 +165,9 @@ try {
     & docker container rm --force $SmokeContainer 2>$null | Out-Null
     & docker run --detach --name $SmokeContainer `
         --env "PUBLIC_HOST=$PublicHost" `
-        --env "API_SERVER=https://$PublicHost" `
+        --env "API_SERVER=$ApiServer" `
+        --env "RENDEZVOUS_SERVER=$ServerIP" `
+        --env "RELAY_SERVER=$ServerIP" `
         --env 'RUSTDESK_PUBLIC_KEY=LOCAL_SMOKE_TEST_KEY' `
         $Image | Out-Null
     Assert-LastExitCode 'Local smoke container start'
@@ -175,7 +181,10 @@ try {
         }
         $RuntimeConfig = (& docker exec $SmokeContainer wget -qO- http://127.0.0.1/runtime-config.js | Out-String)
         Assert-LastExitCode 'Local runtime-config check'
-        if (-not $RuntimeConfig.Contains($PublicHost) -or -not $RuntimeConfig.Contains('LOCAL_SMOKE_TEST_KEY')) {
+        if (-not $RuntimeConfig.Contains($PublicHost) -or
+            -not $RuntimeConfig.Contains($ApiServer) -or
+            -not $RuntimeConfig.Contains($ServerIP) -or
+            -not $RuntimeConfig.Contains('LOCAL_SMOKE_TEST_KEY')) {
             throw 'Generated runtime-config.js does not contain the requested host and public key.'
         }
         if ($RuntimeConfig -match '(?i)password|passwd') {
@@ -211,7 +220,7 @@ try {
     Invoke-External -FilePath ssh -ArgumentList @(
         $Target,
         'bash', "$IncomingPath/deploy_remote.sh",
-        'deploy', $RemotePath, $RustDeskRemotePath, $Image, $PublicHost,
+        'deploy', $RemotePath, $RustDeskRemotePath, $Image, $PublicHost, $ApiServer,
         $PrivateBindIP, $PrivateBindPort.ToString(), $HealthTimeoutSeconds.ToString(),
         $Initialize.IsPresent.ToString().ToLowerInvariant()
     ) -Action 'Remote Web Client deployment'

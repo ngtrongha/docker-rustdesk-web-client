@@ -6,7 +6,9 @@ services:
       - "${PRIVATE_BIND_IP:-172.16.3.28}:${PRIVATE_BIND_PORT:-22180}:80"
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:-remote-connect.bvkhanhhoa.cloud}
-      API_SERVER: ${API_SERVER:-https://remote-connect.bvkhanhhoa.cloud}
+      API_SERVER: ${API_SERVER:-https://danhba.bvkhanhhoa.cloud}
+      RENDEZVOUS_SERVER: ${RENDEZVOUS_SERVER:-172.16.3.28}
+      RELAY_SERVER: ${RELAY_SERVER:-172.16.3.28}
       RUSTDESK_PUBLIC_KEY: ${RUSTDESK_PUBLIC_KEY:?RUSTDESK_PUBLIC_KEY is required}
     restart: unless-stopped
     healthcheck:

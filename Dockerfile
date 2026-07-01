@@ -20,6 +20,7 @@ RUN apt-get update \
 
 WORKDIR /src
 COPY patches/same-origin-websocket.patch /tmp/same-origin-websocket.patch
+COPY patches/web-settings-stability.patch /tmp/web-settings-stability.patch
 RUN git init rustdesk \
  && cd rustdesk \
  && git remote add origin "${RUSTDESK_REPO}" \
@@ -28,7 +29,9 @@ RUN git init rustdesk \
  && git checkout --detach FETCH_HEAD \
  && git submodule update --init --recursive --depth 1 \
  && git apply --check /tmp/same-origin-websocket.patch \
- && git apply /tmp/same-origin-websocket.patch
+ && git apply /tmp/same-origin-websocket.patch \
+ && git apply --check /tmp/web-settings-stability.patch \
+ && git apply /tmp/web-settings-stability.patch
 
 WORKDIR /src/rustdesk/flutter/web
 RUN if [ -d v1 ]; then cp -a v1/. .; fi

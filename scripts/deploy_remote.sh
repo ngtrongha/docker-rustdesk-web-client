@@ -150,7 +150,7 @@ initialize_hbbs() {
 
 deploy_web() {
   local remote_path="$1" root_path="$2" image="$3" public_host="$4"
-  local bind_ip="$5" bind_port="$6" timeout_seconds="$7" initialize="$8"
+  local api_server="$5" bind_ip="$6" bind_port="$7" timeout_seconds="$8" initialize="$9"
   local incoming="$remote_path/.incoming"
   local uploaded_compose="$incoming/docker-compose.web.yml"
   local image_tar="$incoming/rustdesk-web-image.tar"
@@ -184,7 +184,9 @@ deploy_web() {
     printf 'RUSTDESK_WEB_IMAGE=%s\n' "$image"
     printf 'RUSTDESK_DOCKER_NETWORK=%s\n' "$network"
     printf 'PUBLIC_HOST=%s\n' "$public_host"
-    printf 'API_SERVER=https://%s\n' "$public_host"
+    printf 'API_SERVER=%s\n' "$api_server"
+    printf 'RENDEZVOUS_SERVER=%s\n' "$bind_ip"
+    printf 'RELAY_SERVER=%s\n' "$bind_ip"
     printf 'PRIVATE_BIND_IP=%s\n' "$bind_ip"
     printf 'PRIVATE_BIND_PORT=%s\n' "$bind_port"
     printf 'RUSTDESK_PUBLIC_KEY=%s\n' "$public_key"
@@ -247,8 +249,8 @@ deploy_web() {
 
 case "${1:-}" in
   deploy)
-    [[ "$#" -eq 9 ]] || fail "Invalid deploy arguments"
-    deploy_web "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+    [[ "$#" -eq 10 ]] || fail "Invalid deploy arguments"
+    deploy_web "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
     ;;
   confirm-initialize)
     [[ "$#" -eq 2 ]] || fail "Invalid confirm-initialize arguments"

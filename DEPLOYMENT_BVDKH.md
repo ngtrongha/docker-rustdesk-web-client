@@ -43,7 +43,7 @@ Cloudflare connector
         /              -> Flutter Web static files
 ```
 
-`runtime-config.js` được tạo lại khi container start, chứa hostname, URL API và public key. Không có mật khẩu điều khiển trong image, Compose hoặc runtime config.
+`runtime-config.js` được tạo lại khi container start. Mặc định ID/Relay hiển thị theo client LAN (`172.16.3.28`), API dùng `https://danhba.bvkhanhhoa.cloud`, còn WebSocket điều khiển vẫn đi qua `/ws/id` và `/ws/relay` cùng origin. Không có mật khẩu điều khiển trong image, Compose hoặc runtime config.
 
 Giới hạn firewall của private server để chỉ private IP của public server được gọi `172.16.3.28:22180`. Cách đặt rule phụ thuộc firewall đang dùng; phải chụp và kiểm tra rule hiện tại trước khi thay đổi. Không mở port này trên router/Internet.
 

@@ -1,0 +1,60 @@
+diff --git a/flutter/lib/desktop/pages/desktop_setting_page.dart b/flutter/lib/desktop/pages/desktop_setting_page.dart
+--- a/flutter/lib/desktop/pages/desktop_setting_page.dart
++++ b/flutter/lib/desktop/pages/desktop_setting_page.dart
+@@ -1400,7 +1400,23 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
+   server(bool enabled) {
+     // Simple temp wrapper for PR check
+     tmpWrapper() {
+       // Setting page is not modal, oldOptions should only be used when getting options, never when setting.
+-      Map<String, dynamic> oldOptions = jsonDecode(bind.mainGetOptionsSync());
++      Map<String, dynamic> oldOptions = {};
++      try {
++        final optionsJson = bind.mainGetOptionsSync().trim();
++        if (optionsJson.isNotEmpty) {
++          dynamic decoded = jsonDecode(optionsJson);
++          // Some JavaScript bridges return an additional JSON string layer.
++          if (decoded is String && decoded.trim().isNotEmpty) {
++            decoded = jsonDecode(decoded);
++          }
++          if (decoded is Map) {
++            oldOptions = Map<String, dynamic>.from(decoded);
++          }
++        }
++      } catch (e) {
++        // Keep the Network page usable when browser storage is empty/corrupt.
++        debugPrint('Failed to read web server settings: $e');
++      }
+       old(String key) {
+         return (oldOptions[key] ?? '').trim();
+       }
+diff --git a/flutter/web/v1/js/src/globals.js b/flutter/web/v1/js/src/globals.js
+--- a/flutter/web/v1/js/src/globals.js
++++ b/flutter/web/v1/js/src/globals.js
+@@ -300,5 +300,27 @@ function _getByName(name, arg) {
+       return curConn.getOption(arg) || false;
+     case 'option':
+       return localStorage.getItem(arg);
++    case 'options':
++      const keys = [
++        'custom-rendezvous-server',
++        'relay-server',
++        'api-server',
++        'key'
++      ];
++      const obj = {};
++      keys.forEach(key => {
++        const value = localStorage.getItem(key);
++        if (value) obj[key] = value;
++      });
++      return JSON.stringify(obj);
++    case 'get_conn_status':
++      if (curConn) {
++        return curConn.getStatus() || JSON.stringify({ status_num: 0 });
++      }
++      return JSON.stringify({ status_num: 0 });
++    case 'api_server':
++      return localStorage.getItem('api-server') || '';
++    case 'is_using_public_server':
++      return !localStorage.getItem('custom-rendezvous-server');
+     case 'image_quality':
+       return curConn.getImageQuality();

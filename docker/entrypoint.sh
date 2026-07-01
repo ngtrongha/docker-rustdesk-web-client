@@ -2,7 +2,9 @@
 set -eu
 
 PUBLIC_HOST="${PUBLIC_HOST:-remote-connect.bvkhanhhoa.cloud}"
-API_SERVER="${API_SERVER:-https://${PUBLIC_HOST}}"
+API_SERVER="${API_SERVER:-https://danhba.bvkhanhhoa.cloud}"
+RENDEZVOUS_SERVER="${RENDEZVOUS_SERVER:-172.16.3.28}"
+RELAY_SERVER="${RELAY_SERVER:-172.16.3.28}"
 RUSTDESK_PUBLIC_KEY="${RUSTDESK_PUBLIC_KEY:-}"
 
 case "${PUBLIC_HOST}" in
@@ -30,8 +32,8 @@ esac
 cat > /usr/share/nginx/html/runtime-config.js <<EOF
 window.__RUSTDESK_CONFIG__ = Object.freeze({
   publicHost: "${PUBLIC_HOST}",
-  rendezvousServer: "${PUBLIC_HOST}",
-  relayServer: "${PUBLIC_HOST}",
+  rendezvousServer: "${RENDEZVOUS_SERVER}",
+  relayServer: "${RELAY_SERVER}",
   apiServer: "${API_SERVER}",
   publicKey: "${RUSTDESK_PUBLIC_KEY}"
 });
